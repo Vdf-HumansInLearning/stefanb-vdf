@@ -2,6 +2,7 @@ const { expect } = require("chai");
 let chai = require("chai");
 let chaiHttp = require("chai-http");
 let api = require("../app");
+const should = chai.should();
 
 chai.use(chaiHttp);
 
