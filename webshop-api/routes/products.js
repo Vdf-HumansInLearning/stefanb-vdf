@@ -26,10 +26,12 @@ router.get("/:id", function (req, res, next) {
 
 router.delete("/products/:id", function (req, res) {
   let products = JSON.parse(fs.readFileSync());
-  // verify if there is any user with id
   let updatedProducts = products.filter((user) => user.id != req.params.id);
   try {
-    fs.writeFileSync("../data/products.json", JSON.stringify(updatedProducts));
+    fs.writeFileSync(
+      path.resolve(__dirname, "../data/products.json"),
+      JSON.stringify(updatedProducts)
+    );
     res.send(`Deleting user ${req.params.id}`);
   } catch (err) {
     console.error(err);
@@ -66,7 +68,10 @@ router.post("/", function (req, res) {
     };
     if (validProduct) {
       products.push(productToAdd);
-      fs.writeFileSync("../data/product.json", JSON.stringify(products));
+      fs.writeFileSync(
+        path.resolve(__dirname, "../data/products.json"),
+        JSON.stringify(products)
+      );
       res.json(productToAdd);
     } else {
       res.status(400).send("Product is not valid");
