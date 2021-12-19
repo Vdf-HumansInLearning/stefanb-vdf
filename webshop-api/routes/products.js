@@ -24,18 +24,22 @@ router.get("/:id", function (req, res, next) {
   res.json(product);
 });
 
-router.delete("/products/:id", function (req, res) {
-  let products = JSON.parse(fs.readFileSync());
-  let updatedProducts = products.filter((user) => user.id != req.params.id);
+router.delete("/:id", function (req, res) {
+  let products = JSON.parse(
+    fs.readFileSync(path.resolve(__dirname, "../data/products.json"), "utf8")
+  );
+  let updatedProducts = products.filter(
+    (product) => product.id != req.params.id
+  );
   try {
     fs.writeFileSync(
       path.resolve(__dirname, "../data/products.json"),
       JSON.stringify(updatedProducts)
     );
-    res.send(`Deleting user ${req.params.id}`);
+    res.send(`Product with id:${req.params.id} deleted`);
   } catch (err) {
     console.error(err);
-    res.send(`Error`);
+    res.send("Error");
   }
 });
 
@@ -59,20 +63,66 @@ router.post("/", function (req, res) {
       name: req.body.name,
       brand: req.body.brand,
       operating_system: req.body.operating_system,
-      price: req.body.price,
-      discount: req.body.discount,
-      quantity: req.body.quantity,
+      price: Number(req.body.price),
+      discount: Number(req.body.discount),
+      quantity: Number(req.body.quantity),
       availability_date: req.body.availability_date,
-      rating: req.body.rating,
+      rating: Number(req.body.rating),
       img: req.body.img,
     };
-    if (validProduct) {
+    if (validProduct(productToAdd)) {
       products.push(productToAdd);
       fs.writeFileSync(
         path.resolve(__dirname, "../data/products.json"),
         JSON.stringify(products)
       );
       res.json(productToAdd);
+    } else {
+      res.status(400).send("Product is not valid");
+    }
+  } else {
+    res.status(400).send("Please complete all fields");
+  }
+});
+
+router.put("/:id", function (req, res) {
+  let products = JSON.parse(
+    fs.readFileSync(path.resolve(__dirname, "../data/products.json"), "utf8")
+  );
+  let index = products.findIndex((item) => item.id === Number(req.params.id));
+  console.log(index);
+  let product = products.find((product) => product.id == req.params.id);
+  if (
+    req.body.name &&
+    req.body.brand &&
+    req.body.operating_system &&
+    req.body.price &&
+    req.body.discount &&
+    req.body.quantity &&
+    req.body.availability_date &&
+    req.body.rating &&
+    req.body.img &&
+    product
+  ) {
+    let productToUpdate = {
+      id: product.id,
+      name: req.body.name,
+      brand: req.body.brand,
+      operating_system: req.body.operating_system,
+      price: Number(req.body.price),
+      discount: Number(req.body.discount),
+      quantity: Number(req.body.quantity),
+      availability_date: req.body.availability_date,
+      rating: Number(req.body.rating),
+      img: req.body.img,
+    };
+    if (validProduct(productToUpdate)) {
+      products[index] = productToUpdate;
+      fs.writeFileSync(
+        path.resolve(__dirname, "../data/products.json"),
+        JSON.stringify(products)
+      );
+      res.json(productToUpdate);
     } else {
       res.status(400).send("Product is not valid");
     }
